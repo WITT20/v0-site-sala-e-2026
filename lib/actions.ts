@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { db, type Post, type TipoConteudo, type Materia, type Semestre, type SalaConfig } from './db'
-import { requireAuth, requireAdmin } from './auth'
+import { getSession } from './auth'
 
 export async function createPost(formData: {
   tipo: TipoConteudo
@@ -15,12 +15,15 @@ export async function createPost(formData: {
   dataInicio?: string
   dataEntrega?: string
   membrosGrupo?: string[]
+  autorNome: string
 }): Promise<{ success: boolean; error?: string; post?: Post }> {
   try {
-    const user = await requireAuth()
-
     if (!formData.titulo || !formData.descricao) {
       return { success: false, error: 'Título e descrição são obrigatórios' }
+    }
+
+    if (!formData.autorNome) {
+      return { success: false, error: 'Selecione seu nome' }
     }
 
     const post = db.createPost({
@@ -34,12 +37,11 @@ export async function createPost(formData: {
       dataInicio: formData.dataInicio,
       dataEntrega: formData.dataEntrega,
       membrosGrupo: formData.membrosGrupo,
-      autorId: user.id,
-      autorNome: user.nome
+      autorId: 'anon',
+      autorNome: formData.autorNome
     })
 
     revalidatePath('/', 'max')
-    revalidatePath('/meus-posts', 'max')
 
     return { success: true, post }
   } catch {
@@ -49,21 +51,20 @@ export async function createPost(formData: {
 
 export async function deletePost(postId: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const user = await requireAuth()
+    const user = await getSession()
     const post = db.getPostById(postId)
 
     if (!post) {
       return { success: false, error: 'Post não encontrado' }
     }
 
-    if (post.autorId !== user.id && !user.isAdmin) {
-      return { success: false, error: 'Você não tem permissão para deletar este post' }
+    // Apenas admin pode deletar
+    if (!user?.isAdmin) {
+      return { success: false, error: 'Apenas o administrador pode deletar posts' }
     }
 
     db.deletePost(postId)
-
     revalidatePath('/', 'max')
-    revalidatePath('/meus-posts', 'max')
 
     return { success: true }
   } catch {
@@ -73,7 +74,10 @@ export async function deletePost(postId: string): Promise<{ success: boolean; er
 
 export async function updateSalaConfig(config: Partial<SalaConfig>): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAdmin()
+    const user = await getSession()
+    if (!user?.isAdmin) {
+      return { success: false, error: 'Acesso restrito ao administrador' }
+    }
     db.updateConfig(config)
     revalidatePath('/', 'max')
     return { success: true }

@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useAuth } from '@/components/auth-provider'
 import { createPost, getAllUsers } from '@/lib/actions'
 import { MATERIAS, TIPOS_CONTEUDO, SEMESTRES, type Materia, type TipoConteudo, type Semestre } from '@/lib/db'
 import { Button } from '@/components/ui/button'
@@ -16,12 +14,11 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Spinner } from '@/components/ui/spinner'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Upload, X, AlertCircle, ImagePlus, Send, LogIn } from 'lucide-react'
+import { X, AlertCircle, ImagePlus, Send } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function PublicarPage() {
   const router = useRouter()
-  const { user } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   
   const [loading, setLoading] = useState(false)
@@ -29,6 +26,7 @@ export default function PublicarPage() {
   const [users, setUsers] = useState<{ id: string; nome: string }[]>([])
 
   // Form state
+  const [autorNome, setAutorNome] = useState('')
   const [tipo, setTipo] = useState<TipoConteudo>('Atividade')
   const [titulo, setTitulo] = useState('')
   const [materia, setMateria] = useState<Materia>('Português')
@@ -107,6 +105,7 @@ export default function PublicarPage() {
         dataInicio: needsDatasTrabalhoProjeto ? dataInicio : undefined,
         dataEntrega: needsDatasTrabalhoProjeto ? dataEntrega : undefined,
         membrosGrupo: needsDatasTrabalhoProjeto ? membrosGrupo : undefined,
+        autorNome,
       })
 
       if (result.success) {
@@ -120,29 +119,6 @@ export default function PublicarPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  if (!user) {
-    return (
-      <div className="max-w-lg mx-auto mt-12">
-        <Card className="border-border/50 text-center">
-          <CardHeader>
-            <CardTitle className="text-2xl">Faça Login para Publicar</CardTitle>
-            <CardDescription>
-              Você precisa estar logado para compartilhar conteúdo com a turma.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/login">
-              <Button size="lg">
-                <LogIn className="w-4 h-4 mr-2" />
-                Entrar na Conta
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    )
   }
 
   return (
@@ -163,6 +139,21 @@ export default function PublicarPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Seu Nome */}
+            <div className="space-y-2">
+              <Label htmlFor="autorNome">Seu Nome *</Label>
+              <Select value={autorNome} onValueChange={setAutorNome} required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione seu nome" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users.map((u) => (
+                    <SelectItem key={u.id} value={u.nome}>{u.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Tipo de Conteúdo */}
             <div className="space-y-2">
               <Label htmlFor="tipo">Tipo de Conteúdo *</Label>
@@ -310,18 +301,18 @@ export default function PublicarPage() {
                   <Label>Membros do Grupo</Label>
                   <ScrollArea className="h-48 border rounded-lg p-3">
                     <div className="space-y-2">
-                      {users.map((user) => (
-                        <div key={user.id} className="flex items-center space-x-2">
+                      {users.map((u) => (
+                        <div key={u.id} className="flex items-center space-x-2">
                           <Checkbox
-                            id={user.id}
-                            checked={membrosGrupo.includes(user.id)}
-                            onCheckedChange={() => toggleMembro(user.id)}
+                            id={u.id}
+                            checked={membrosGrupo.includes(u.id)}
+                            onCheckedChange={() => toggleMembro(u.id)}
                           />
                           <label
-                            htmlFor={user.id}
+                            htmlFor={u.id}
                             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                           >
-                            {user.nome}
+                            {u.nome}
                           </label>
                         </div>
                       ))}
@@ -352,7 +343,7 @@ export default function PublicarPage() {
             </div>
 
             {/* Submit */}
-            <Button type="submit" size="lg" className="w-full" disabled={loading}>
+            <Button type="submit" size="lg" className="w-full" disabled={loading || !autorNome}>
               {loading ? (
                 <>
                   <Spinner className="w-4 h-4 mr-2" />

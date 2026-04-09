@@ -25,7 +25,6 @@ import { getSalaConfig } from '@/lib/actions'
 const navItems = [
   { href: '/', label: 'Início', icon: Home },
   { href: '/publicar', label: 'Publicar', icon: PlusCircle },
-  { href: '/meus-posts', label: 'Meus Posts', icon: FileText },
 ]
 
 export function Navbar() {
