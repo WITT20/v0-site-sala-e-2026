@@ -13,6 +13,7 @@ import {
   FileText, 
   Settings, 
   LogOut, 
+  LogIn,
   Menu,
   MessageCircle,
   Instagram
@@ -139,13 +140,24 @@ export function Navbar() {
 
           {/* User info & Logout - Desktop */}
           <div className="hidden md:flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              Olá, <span className="font-medium text-foreground">{user?.nome}</span>
-            </span>
-            <Button variant="ghost" size="icon" onClick={logout}>
-              <LogOut className="w-4 h-4" />
-              <span className="sr-only">Sair</span>
-            </Button>
+            {user ? (
+              <>
+                <span className="text-sm text-muted-foreground">
+                  Olá, <span className="font-medium text-foreground">{user.nome}</span>
+                </span>
+                <Button variant="ghost" size="icon" onClick={logout}>
+                  <LogOut className="w-4 h-4" />
+                  <span className="sr-only">Sair</span>
+                </Button>
+              </>
+            ) : (
+              <Link href="/login">
+                <Button variant="outline" size="sm">
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Entrar
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu */}
@@ -164,7 +176,7 @@ export function Navbar() {
                   </div>
                   <div>
                     <p className="font-semibold">Sala E 2026</p>
-                    <p className="text-xs text-muted-foreground">{user?.nome}</p>
+                    <p className="text-xs text-muted-foreground">{user?.nome || 'Visitante'}</p>
                   </div>
                 </div>
 
@@ -177,14 +189,23 @@ export function Navbar() {
                   <SocialLinks mobile />
                 </div>
 
-                <Button 
-                  variant="outline" 
-                  className="mt-auto mx-3" 
-                  onClick={() => { setOpen(false); logout(); }}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sair
-                </Button>
+                {user ? (
+                  <Button 
+                    variant="outline" 
+                    className="mt-auto mx-3" 
+                    onClick={() => { setOpen(false); logout(); }}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sair
+                  </Button>
+                ) : (
+                  <Link href="/login" onClick={() => setOpen(false)} className="mx-3">
+                    <Button variant="default" className="w-full">
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Entrar
+                    </Button>
+                  </Link>
+                )}
               </div>
             </SheetContent>
           </Sheet>

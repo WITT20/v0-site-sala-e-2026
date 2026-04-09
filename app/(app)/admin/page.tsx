@@ -10,7 +10,8 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Spinner } from '@/components/ui/spinner'
-import { Save, MessageCircle, Instagram, Shield, AlertTriangle } from 'lucide-react'
+import { Save, MessageCircle, Instagram, Shield, AlertTriangle, LogIn } from 'lucide-react'
+import Link from 'next/link'
 import { toast } from 'sonner'
 
 export default function AdminPage() {
@@ -54,7 +55,30 @@ export default function AdminPage() {
     setSaving(false)
   }
 
-  if (!user?.isAdmin) {
+  if (!user) {
+    return (
+      <div className="max-w-lg mx-auto mt-12">
+        <Card className="border-border/50 text-center">
+          <CardHeader>
+            <CardTitle className="text-2xl">Acesso Restrito</CardTitle>
+            <CardDescription>
+              Faça login como administrador para acessar esta página.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/login">
+              <Button size="lg">
+                <LogIn className="w-4 h-4 mr-2" />
+                Entrar na Conta
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  if (!user.isAdmin) {
     return (
       <div className="max-w-lg mx-auto mt-12">
         <Alert variant="destructive">

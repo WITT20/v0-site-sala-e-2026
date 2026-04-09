@@ -7,21 +7,15 @@ export async function POST(request: Request) {
   try {
     const { nome, senha } = await request.json()
     
-    console.log('[v0] Login attempt:', nome)
-    
     const user = db.findUserByNome(nome)
     
     if (!user) {
-      console.log('[v0] User not found:', nome)
       return NextResponse.json({ success: false, error: 'Usuario nao encontrado' })
     }
     
     if (user.senha !== senha) {
-      console.log('[v0] Wrong password for:', nome)
       return NextResponse.json({ success: false, error: 'Senha incorreta' })
     }
-
-    console.log('[v0] Login successful for:', user.id)
 
     const { senha: _, ...userWithoutPassword } = user
     
@@ -36,8 +30,7 @@ export async function POST(request: Request) {
     })
 
     return response
-  } catch (error) {
-    console.log('[v0] Login error:', error)
+  } catch {
     return NextResponse.json({ success: false, error: 'Erro no servidor' }, { status: 500 })
   }
 }

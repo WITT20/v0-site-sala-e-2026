@@ -19,7 +19,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { FileText, PlusCircle, Trash2 } from 'lucide-react'
+import { FileText, PlusCircle, Trash2, LogIn } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { toast } from 'sonner'
 
@@ -75,6 +76,29 @@ export default function MeusPostsPage() {
     setDeleting(false)
     setDeleteDialogOpen(false)
     setPostToDelete(null)
+  }
+
+  if (!user) {
+    return (
+      <div className="max-w-lg mx-auto mt-12">
+        <Card className="border-border/50 text-center">
+          <CardHeader>
+            <CardTitle className="text-2xl">Faça Login para Ver Seus Posts</CardTitle>
+            <CardDescription>
+              Você precisa estar logado para ver suas publicações.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/login">
+              <Button size="lg">
+                <LogIn className="w-4 h-4 mr-2" />
+                Entrar na Conta
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   if (loading) {

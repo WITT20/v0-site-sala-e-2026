@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { useAuth } from '@/components/auth-provider'
 import { createPost, getAllUsers } from '@/lib/actions'
 import { MATERIAS, TIPOS_CONTEUDO, SEMESTRES, type Materia, type TipoConteudo, type Semestre } from '@/lib/db'
 import { Button } from '@/components/ui/button'
@@ -14,11 +16,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Spinner } from '@/components/ui/spinner'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Upload, X, AlertCircle, ImagePlus, Send } from 'lucide-react'
+import { Upload, X, AlertCircle, ImagePlus, Send, LogIn } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function PublicarPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   
   const [loading, setLoading] = useState(false)
@@ -117,6 +120,29 @@ export default function PublicarPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (!user) {
+    return (
+      <div className="max-w-lg mx-auto mt-12">
+        <Card className="border-border/50 text-center">
+          <CardHeader>
+            <CardTitle className="text-2xl">Faça Login para Publicar</CardTitle>
+            <CardDescription>
+              Você precisa estar logado para compartilhar conteúdo com a turma.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/login">
+              <Button size="lg">
+                <LogIn className="w-4 h-4 mr-2" />
+                Entrar na Conta
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (

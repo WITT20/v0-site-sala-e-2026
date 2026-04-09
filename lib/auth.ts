@@ -75,23 +75,18 @@ export async function getSession(): Promise<Omit<User, 'senha'> | null> {
     const cookieStore = await cookies()
     const sessionId = cookieStore.get(SESSION_COOKIE)?.value
 
-    console.log('[v0] getSession check, sessionId:', sessionId)
-
     if (!sessionId) {
       return null
     }
 
     const user = db.users.get(sessionId)
     if (!user) {
-      console.log('[v0] getSession user not found:', sessionId)
       return null
     }
 
-    console.log('[v0] getSession found user:', user.nome)
     const { senha: _, ...userWithoutPassword } = user
     return userWithoutPassword
-  } catch (error) {
-    console.log('[v0] getSession error:', error)
+  } catch {
     return null
   }
 }
