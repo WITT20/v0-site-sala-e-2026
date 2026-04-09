@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 
 const SESSION_COOKIE = 'sala-e-session'
@@ -27,17 +26,19 @@ export async function POST(request: Request) {
 
     const user = db.createUser(nome, senha, telefone)
 
-    const cookieStore = await cookies()
-    cookieStore.set(SESSION_COOKIE, user.id, {
+    const { senha: _, ...userWithoutPassword } = user
+    
+    const response = NextResponse.json({ success: true, user: userWithoutPassword })
+    
+    response.cookies.set(SESSION_COOKIE, user.id, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
       path: '/'
     })
 
-    const { senha: _, ...userWithoutPassword } = user
-    return NextResponse.json({ success: true, user: userWithoutPassword })
+    return response
   } catch {
     return NextResponse.json({ success: false, error: 'Erro no servidor' }, { status: 500 })
   }

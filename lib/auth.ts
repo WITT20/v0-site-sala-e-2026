@@ -71,20 +71,29 @@ export async function logout(): Promise<void> {
 }
 
 export async function getSession(): Promise<Omit<User, 'senha'> | null> {
-  const cookieStore = await cookies()
-  const sessionId = cookieStore.get(SESSION_COOKIE)?.value
+  try {
+    const cookieStore = await cookies()
+    const sessionId = cookieStore.get(SESSION_COOKIE)?.value
 
-  if (!sessionId) {
+    console.log('[v0] getSession check, sessionId:', sessionId)
+
+    if (!sessionId) {
+      return null
+    }
+
+    const user = db.users.get(sessionId)
+    if (!user) {
+      console.log('[v0] getSession user not found:', sessionId)
+      return null
+    }
+
+    console.log('[v0] getSession found user:', user.nome)
+    const { senha: _, ...userWithoutPassword } = user
+    return userWithoutPassword
+  } catch (error) {
+    console.log('[v0] getSession error:', error)
     return null
   }
-
-  const user = db.users.get(sessionId)
-  if (!user) {
-    return null
-  }
-
-  const { senha: _, ...userWithoutPassword } = user
-  return userWithoutPassword
 }
 
 export async function requireAuth(): Promise<Omit<User, 'senha'>> {
