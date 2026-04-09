@@ -1,8 +1,7 @@
 // ===========================================
 // BANCO DE DADOS IN-MEMORY - SALA E 2026
 // ===========================================
-// IMPORTANTE: Altere a senha do admin abaixo!
-// username: "admin" | senha: "admin123"
+// ADMIN: login "WITT" | senha "12345678"
 // ===========================================
 
 export type TipoConteudo = 'Atividade' | 'Trabalho' | 'Projeto' | 'Resumo' | 'Material' | 'Prova'
@@ -68,11 +67,11 @@ class Database {
   }
 
   private seedData() {
-    // Admin fixo - ALTERE A SENHA AQUI!
+    // Admin fixo
     const admin: User = {
       id: 'admin',
-      nome: 'admin',
-      senha: 'admin123', // <-- ALTERE ESTA SENHA!
+      nome: 'WITT',
+      senha: '12345678',
       isAdmin: true,
       criadoEm: new Date()
     }
